@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class FakeData @Inject constructor() {
     var list = listOf(
-        Data("Mercedes-Benz", "race", "C291",R.drawable.b_clsa),
+        Data("Mercedes-Benz", "race", "C291",R.drawable.c291),
         Data("Mercedes-Benz", "modern", "CLA",R.drawable.b_clsa),
         Data("Mercedes-Benz", "modern", "GLA",R.drawable.b_gla),
         Data("Mercedes-Benz", "classic", "123",R.drawable.b123),
