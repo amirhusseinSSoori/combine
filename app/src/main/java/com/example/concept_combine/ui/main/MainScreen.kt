@@ -22,28 +22,23 @@ import com.example.concept_combine.util.utilFont
 
 @Composable
 fun MainScree(viewModel: MainViewModel) {
-    var expanded by remember { mutableStateOf(false) }
     viewModel._state.collectAsState().let { details ->
         Menu(
-            enableMenu = expanded,
-            disableMenu = { expanded = false },
+            enableMenu = details.value.enableMenu is VisibleMenu.Enable,
+            disableMenu = { viewModel.disableMenu() },
             filterCar = viewModel::onCollectFilter
         )
         Column(
             modifier = Modifier
                 .fillMaxSize()
-
         ) {
-            SelectButton(expanded = { expanded = true })
+            SelectButton(expanded = { viewModel.enableMenu()})
             Topic(text = "Best Of Car")
             LazyList(data = details.value.modern,"Row")
             Topic(text = "List Of Car")
             LazyList(data = details.value.car, "Column")
         }
-
-
     }
-
 }
 
 @Composable
@@ -57,7 +52,7 @@ fun Topic(text: String) {
 @Composable
 fun Menu(enableMenu: Boolean, disableMenu: () -> Unit, filterCar: (String) -> Unit) {
     DropdownMenu(
-        offset = DpOffset(300.dp, -1000.dp),
+        offset = DpOffset(300.dp, (-1000).dp),
         expanded = enableMenu,
         onDismissRequest = { disableMenu() },
     ) {
