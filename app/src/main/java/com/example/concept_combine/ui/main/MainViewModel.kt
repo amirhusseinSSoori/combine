@@ -10,47 +10,49 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(var repository: Repository):ViewModel() {
+class MainViewModel @Inject constructor(var repository: Repository) : ViewModel() {
 
 
     private val carState = MutableStateFlow<List<Data>>(emptyList())
-    val data2 = MutableStateFlow<List<Data>>(emptyList())
+    private val modernState = MutableStateFlow<List<Data>>(emptyList())
 
-      private val state= MutableStateFlow(KindOfBy())
-      val _state= state.asStateFlow()
+    private val state = MutableStateFlow(KindOfBy())
+    val _state = state.asStateFlow()
+
     init {
-         onCollect()
-         viewModelScope.launch {
-             combine(carState,data2){car,hgfa->
-                 KindOfBy(car)
-             }.collect {
-                 state.value=it
-             }
-         }
+        onCollect()
+        onCollectModern()
+        viewModelScope.launch {
+            combine(carState, modernState) { car, modern ->
+                KindOfBy(car, modern)
+            }.collect {
+                state.value = it
+            }
+        }
 
-     }
+    }
 
-    private fun onCollect(){
+    private fun onCollect() {
         repository.generateList().onEach {
             carState.value = it
         }.launchIn(viewModelScope)
     }
 
-    fun onCollectFilter(type:String){
+    private fun onCollectModern() {
+        repository.filterType("modern").onEach {
+            modernState.value = it
+        }.launchIn(viewModelScope)
+    }
+
+    fun onCollectFilter(type: String) {
         repository.filterType(type).onEach {
             carState.value = it
         }.launchIn(viewModelScope)
     }
 
 
-
-
-
-
-
-
 }
 
-data class KindOfBy(var car:List<Data> = listOf(), var b:List<Data> = listOf()){
+data class KindOfBy(var car: List<Data> = listOf(), var modern: List<Data> = listOf()) {
 
 }
