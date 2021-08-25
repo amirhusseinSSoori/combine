@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(var repository: Repository):ViewModel() {
+class MainViewModel @Inject constructor(var repository: Repository) : ViewModel() {
 
 
     val data = MutableStateFlow<List<Data>>(emptyList())
@@ -23,24 +23,24 @@ class MainViewModel @Inject constructor(var repository: Repository):ViewModel() 
 
     val value: MutableState<List<Data>> = mutableStateOf(listOf())
 
+    init {
+        onCollectDetails()
+    }
 
 
-
-    fun onCollect( ){
+    private fun onCollectDetails() {
         repository.generateList().onEach {
             value.value = it
         }.launchIn(viewModelScope)
     }
 
-    fun onCollectFilter( type:String){
+    fun onCollectFilter(type: String) {
         repository.filterType(type).onEach {
             value.value = it
         }.launchIn(viewModelScope)
     }
 
 
-
-
-
 }
-data class ListState(var data:List<Data> = listOf())
+
+data class ListState(var data: List<Data> = listOf())

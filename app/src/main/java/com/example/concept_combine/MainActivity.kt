@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.widget.PopupMenu
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
@@ -14,16 +15,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.concept_combine.ui.screen.MainViewModel
@@ -40,25 +43,65 @@ class MainActivity : ComponentActivity() {
             val viewModel: MainViewModel = viewModel()
 //            val data by viewModel._data.collectAsState()
             val data by viewModel.value
+            var expanded by remember { mutableStateOf(false) }
+
             Concept_CombineTheme {
-
-                viewModel.onCollect()
                 Surface(color = MaterialTheme.colors.background) {
+                    ConstraintLayout(
+                        modifier = Modifier
+                            .fillMaxSize()
 
-                    Column() {
-                        Button(onClick = {
-                            viewModel.onCollectFilter("race")
-                        },modifier = Modifier.fillMaxWidth()) {
+                    ) {
+                        val (btnPop, listCar,pop) = createRefs()
+
+                        DropdownMenu(
+                            offset = DpOffset(300.dp, (-2000).dp),
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            ) {
+                            DropdownMenuItem(onClick = {
+                                viewModel.onCollectFilter("race")
+                                expanded = false
+                            }) {
+
+                                Text("Race")
+                            }
+                            DropdownMenuItem(onClick = {
+                                viewModel.onCollectFilter("modern")
+                                expanded = false
+                            }) {
+
+                                Text("Modern")
+                            }
+                            Divider()
+                            DropdownMenuItem(onClick = {
+                                viewModel.onCollectFilter("classic")
+                                expanded = false
+                            }) {
+                                Text("Classic")
+                            }
+                        }
+
+                        Button(
+                            onClick = {
+                                expanded = true
+
+                            },
+                            modifier = Modifier
+                                .constrainAs(btnPop) {
+                                    top.linkTo(parent.top)
+                                }
+                                .fillMaxWidth(),
+                        ) {
 
                         }
-                        Button(onClick = {
-                            viewModel.onCollectFilter("classic")
-                        },modifier = Modifier.fillMaxWidth()) {
 
-                        }
-                        data?.let {
-
-                            LazyColumn {
+                        data.let {
+                            LazyColumn(modifier = Modifier
+                                .constrainAs(listCar) {
+                                    top.linkTo(btnPop.bottom, margin = 3.dp)
+                                }
+                                .fillMaxSize()) {
                                 items(it) {
                                     LazyList(img = it.img)
                                 }
@@ -66,9 +109,6 @@ class MainActivity : ComponentActivity() {
                         }
 
                     }
-
-
-
 
 
 
@@ -90,16 +130,16 @@ fun LazyList(img: Int) {
             .height(200.dp)
     ) {
         Card {
-        Image(
-            painter = painterResource(img),
-            "content description",
-            modifier = Modifier
-                .clip(RoundedCornerShape(10.dp))
-                .fillMaxSize()
-                .padding(10.dp),
-            contentScale = ContentScale.Crop,
-        )
-    }
+            Image(
+                painter = painterResource(img),
+                "content description",
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .fillMaxSize()
+                    .padding(10.dp),
+                contentScale = ContentScale.Crop,
+            )
+        }
     }
 
 
@@ -117,3 +157,7 @@ fun DefaultPreview() {
         Greeting("Android")
     }
 }
+
+
+
+
