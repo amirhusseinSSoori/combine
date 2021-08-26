@@ -13,10 +13,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import com.example.concept_combine.R
 import com.example.concept_combine.data.network.Data
+import com.example.concept_combine.util.Constance.classic
+import com.example.concept_combine.util.Constance.column
+import com.example.concept_combine.util.Constance.modern
+import com.example.concept_combine.util.Constance.race
+import com.example.concept_combine.util.Constance.row
 import com.example.concept_combine.util.utilFont
 
 
@@ -25,18 +32,17 @@ fun MainScree(viewModel: MainViewModel) {
     viewModel._state.collectAsState().let { details ->
         Menu(
             enableMenu = details.value.enableMenu is VisibleMenu.Enable,
-            disableMenu = { viewModel.disableMenu() },
-            filterCar = viewModel::onCollectFilter
-        )
+            disableMenu = { viewModel.event(AllEvent.EnableMenu(VisibleMenu.Disable)) },
+            filterCar = { viewModel.event(AllEvent.FilterData(it)) })
         Column(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            SelectButton(expanded = { viewModel.enableMenu()})
-            Topic(text = "Best Of Car")
-            LazyList(data = details.value.modern,"Row")
-            Topic(text = "List Of Car")
-            LazyList(data = details.value.car, "Column")
+            SelectButton(expanded = { viewModel.event(AllEvent.EnableMenu(VisibleMenu.Enable)) })
+            Topic(text = stringResource(id = R.string.best_cars))
+            LazyList(data = details.value.modern, row)
+            Topic(text = stringResource(id = R.string.all_cars))
+            LazyList(data = details.value.car, column)
         }
     }
 }
@@ -57,32 +63,32 @@ fun Menu(enableMenu: Boolean, disableMenu: () -> Unit, filterCar: (String) -> Un
         onDismissRequest = { disableMenu() },
     ) {
         DropdownMenuItem(onClick = {
-            filterCar("race")
+            filterCar(race)
             disableMenu()
         }) {
             Text(
-                "Race", fontFamily = utilFont,
+                stringResource(id = R.string.race), fontFamily = utilFont,
                 fontWeight = FontWeight.Normal
             )
         }
         Divider()
         DropdownMenuItem(onClick = {
-            filterCar("modern")
+            filterCar(modern)
             disableMenu()
         }) {
 
             Text(
-                "Modern", fontFamily = utilFont,
+                stringResource(id = R.string.modern), fontFamily = utilFont,
                 fontWeight = FontWeight.Normal
             )
         }
         Divider()
         DropdownMenuItem(onClick = {
-            filterCar("classic")
+            filterCar(classic)
             disableMenu()
         }) {
             Text(
-                "Classic", fontFamily = utilFont,
+                stringResource(id = R.string.classic), fontFamily = utilFont,
                 fontWeight = FontWeight.Normal
             )
         }
@@ -90,9 +96,9 @@ fun Menu(enableMenu: Boolean, disableMenu: () -> Unit, filterCar: (String) -> Un
 }
 
 @Composable
-fun LazyList(data: List<Data>, type:String) {
-    when(type) {
-        "Column" -> {
+fun LazyList(data: List<Data>, type: String) {
+    when (type) {
+        column -> {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -103,7 +109,7 @@ fun LazyList(data: List<Data>, type:String) {
             }
 
         }
-        "Row" -> {
+        row -> {
             LazyRow(
                 modifier = Modifier
             ) {
@@ -115,7 +121,6 @@ fun LazyList(data: List<Data>, type:String) {
     }
 
 }
-
 
 
 @Composable
@@ -132,11 +137,13 @@ fun SelectButton(expanded: () -> Unit) {
 }
 
 @Composable
-fun RowItem(data: Data){
-    Column(   modifier = Modifier
-        .height(130.dp)
-        .fillMaxWidth()
-        .padding(start = 20.dp)) {
+fun RowItem(data: Data) {
+    Column(
+        modifier = Modifier
+            .height(130.dp)
+            .fillMaxWidth()
+            .padding(start = 20.dp)
+    ) {
         Image(
             painter = painterResource(data.img),
             "content description",

@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Concept_Combine</string>
+    <string name="race">Race</string>
+    <string name="modern">Modern</string>
+    <string name="classic">Classic</string>
+    <string name="best_cars">Best Of Car</string>
+    <string name="all_cars">List Of Cars</string>
 </resources>

@@ -14,8 +14,8 @@ class Repository @Inject constructor(var api:FakeData) {
     }
 
 
-    fun filterType(typse:String):Flow<List<Data>> = flow{
-        emit(api.list.filter { it.type == typse })
+    fun filterType(type:String):Flow<List<Data>> = flow{
+        emit(api.list.filter { it.type == type })
     }
 
 }

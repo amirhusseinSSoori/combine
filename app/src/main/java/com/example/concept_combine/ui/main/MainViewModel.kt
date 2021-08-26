@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.concept_combine.data.Repository
 import com.example.concept_combine.data.network.Data
+import com.example.concept_combine.util.Constance.modern
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,12 +21,10 @@ class MainViewModel @Inject constructor(var repository: Repository) : ViewModel(
     val _state = state.asStateFlow()
 
     init {
-        onCollect()
-        disableMenu()
-        onCollectModern()
+        event(AllEvent.GetAllData)
         viewModelScope.launch {
-            combine(carState, modernState,enableState) { car, modern ,enableState->
-                KindOfBy(car, modern,enableState)
+            combine(carState, modernState, enableState) { car, modern, enableState ->
+                KindOfBy(car, modern, enableState)
             }.collect {
                 state.value = it
             }
@@ -33,11 +32,25 @@ class MainViewModel @Inject constructor(var repository: Repository) : ViewModel(
 
     }
 
-     fun enableMenu(){
-         enableState.value=VisibleMenu.Enable
-    }
-    fun disableMenu(){
-        enableState.value=VisibleMenu.Disable
+
+    fun event(event: AllEvent) {
+        when(event){
+            is AllEvent.GetAllData->{
+                onCollect()
+                onCollectModern()
+            }
+            is AllEvent.FilterData->{
+                onCollectFilter(event.type)
+            }
+            is AllEvent.EnableMenu ->{
+                if(event.visibleMenu is VisibleMenu.Enable){
+                    enableState.value = VisibleMenu.Enable
+                }else{
+                    enableState.value = VisibleMenu.Disable
+                }
+            }
+        }
+
     }
     private fun onCollect() {
         repository.generateList().onEach {
@@ -48,7 +61,7 @@ class MainViewModel @Inject constructor(var repository: Repository) : ViewModel(
     }
 
     private fun onCollectModern() {
-        repository.filterType("modern").onEach {
+        repository.filterType(modern).onEach {
             modernState.value = it
         }.launchIn(viewModelScope)
     }
@@ -67,7 +80,14 @@ data class KindOfBy(
 )
 
 
-sealed class VisibleMenu(){
-    object  Enable:VisibleMenu()
-    object  Disable:VisibleMenu()
+sealed class VisibleMenu() {
+    object Enable : VisibleMenu()
+    object Disable : VisibleMenu()
+}
+
+sealed class AllEvent() {
+    object GetAllData : AllEvent()
+    data class FilterData(var type:String) : AllEvent()
+    data class EnableMenu(var visibleMenu: VisibleMenu = VisibleMenu.Enable): AllEvent()
+
 }
