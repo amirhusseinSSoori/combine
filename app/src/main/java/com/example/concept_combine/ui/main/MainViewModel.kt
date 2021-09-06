@@ -13,7 +13,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(var repository: Repository) : ViewModel() {
 
-
     private val carState = MutableStateFlow<List<Data>>(emptyList())
     private val modernState = MutableStateFlow<List<Data>>(emptyList())
     private val enableState = MutableStateFlow<VisibleMenu>(VisibleMenu.Disable)
@@ -31,19 +30,17 @@ class MainViewModel @Inject constructor(var repository: Repository) : ViewModel(
         }
 
     }
-
-
     fun event(event: AllEvent) {
         when(event){
             is AllEvent.GetAllData->{
-                onCollect()
-                onCollectModern()
+                onSubscriberCars()
+                onSubscriberModernCars()
             }
             is AllEvent.FilterData->{
-                onCollectFilter(event.type)
+                onSubscriberFilterCars(event.type)
             }
             is AllEvent.SearchByName ->{
-                onCollectSearch(event.name)
+                onSubscriberSearchCars(event.name)
             }
             is AllEvent.EnableMenu ->{
                 if(event.visibleMenu is VisibleMenu.Enable){
@@ -55,32 +52,22 @@ class MainViewModel @Inject constructor(var repository: Repository) : ViewModel(
         }
 
     }
-    private fun onCollect() {
+    private fun onSubscriberCars() {
         repository.generateList().onEach {
             carState.value = it
         }.launchIn(viewModelScope)
-
     }
-
-
-
-
-    private fun onCollectModern() {
+    private fun onSubscriberModernCars() {
         repository.filterType(modern).onEach {
             modernState.value = it
         }.launchIn(viewModelScope)
-
-
-
     }
-
-    private fun onCollectSearch(name:String){
+    private fun onSubscriberSearchCars(name:String){
         repository.searchType(name).onEach {
             carState.value = it
         }.launchIn(viewModelScope)
     }
-
-    private fun onCollectFilter(type: String) {
+    private fun onSubscriberFilterCars(type: String) {
         repository.filterType(type).onEach {
             carState.value = it
         }.launchIn(viewModelScope)
