@@ -10,16 +10,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -28,7 +23,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.concept_combine.R
 import com.example.concept_combine.data.network.Data
 import com.example.concept_combine.ui.theme.yellow
@@ -47,21 +41,20 @@ fun MainScree(viewModel: MainViewModel) {
             enableMenu = details.value.enableMenu is VisibleMenu.Enable,
             disableMenu = { viewModel.event(AllEvent.EnableMenu(VisibleMenu.Disable)) },
             filterCar = { viewModel.event(AllEvent.FilterData(it)) })
-        Scaffold(topBar = {
-//            CombineTopBar(expanded = { viewModel.event(AllEvent.EnableMenu(VisibleMenu.Enable)) })
-        },
-            content = {
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    CustomSearch(expanded ={ viewModel.event(AllEvent.EnableMenu(VisibleMenu.Enable)) } )
+                    CustomSearch(expanded ={ viewModel.event(AllEvent.EnableMenu(VisibleMenu.Enable)) } ,onNameChanged = {
+                        viewModel.event(AllEvent.SearchByName(it))
+                    })
                     Topic(text = stringResource(id = R.string.best_cars))
                     LazyList(data = details.value.modern, row)
                     Topic(text = stringResource(id = R.string.all_cars))
                     LazyList(data = details.value.car, column)
                 }
-            })
+
 
     }
 }
@@ -75,7 +68,10 @@ fun Topic(text: String) {
 }
 
 @Composable
-fun CustomSearch(expanded:()->Unit) {
+fun CustomSearch(expanded:()->Unit,onNameChanged: (String) -> Unit,) {
+    var text by remember {
+        mutableStateOf("")
+    }
     Surface(
         modifier = Modifier
             .fillMaxWidth(),
@@ -87,11 +83,32 @@ fun CustomSearch(expanded:()->Unit) {
             .padding(8.dp)
           ) {
             TextField(
-
-                value = "",
-                onValueChange = { },
+                value = text,
+                onValueChange = {
+                    text =it
+                    onNameChanged(it)
+                                },
                 singleLine = true,
-                modifier = Modifier.weight(8f).height(45.dp)
+                modifier = Modifier
+                    .weight(8f),
+                textStyle = TextStyle(color = MaterialTheme.colors.onSurface),
+                colors = TextFieldDefaults.textFieldColors(
+                    textColor = Color.Black,
+                    disabledTextColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                ),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done,
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+//                        onExecuteSearch()
+//                        keyboardController?.hide()
+                    },
+                ),
             )
             Image(
                 painter = painterResource(R.drawable.ic_search),
@@ -110,7 +127,8 @@ fun CustomSearch(expanded:()->Unit) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .padding(5.dp)
-                    .weight(1f).clickable {
+                    .weight(1f)
+                    .clickable {
                         expanded()
                     },
                 contentScale = ContentScale.Crop,

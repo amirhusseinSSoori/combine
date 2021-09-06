@@ -42,6 +42,9 @@ class MainViewModel @Inject constructor(var repository: Repository) : ViewModel(
             is AllEvent.FilterData->{
                 onCollectFilter(event.type)
             }
+            is AllEvent.SearchByName ->{
+                onCollectSearch(event.name)
+            }
             is AllEvent.EnableMenu ->{
                 if(event.visibleMenu is VisibleMenu.Enable){
                     enableState.value = VisibleMenu.Enable
@@ -55,18 +58,29 @@ class MainViewModel @Inject constructor(var repository: Repository) : ViewModel(
     private fun onCollect() {
         repository.generateList().onEach {
             carState.value = it
-
         }.launchIn(viewModelScope)
 
     }
+
+
+
 
     private fun onCollectModern() {
         repository.filterType(modern).onEach {
             modernState.value = it
         }.launchIn(viewModelScope)
+
+
+
     }
 
-    fun onCollectFilter(type: String) {
+    private fun onCollectSearch(name:String){
+        repository.searchType(name).onEach {
+            carState.value = it
+        }.launchIn(viewModelScope)
+    }
+
+    private fun onCollectFilter(type: String) {
         repository.filterType(type).onEach {
             carState.value = it
         }.launchIn(viewModelScope)
@@ -88,6 +102,7 @@ sealed class VisibleMenu() {
 sealed class AllEvent() {
     object GetAllData : AllEvent()
     data class FilterData(var type:String) : AllEvent()
+    data class SearchByName(var name:String): AllEvent()
     data class EnableMenu(var visibleMenu: VisibleMenu = VisibleMenu.Enable): AllEvent()
 
 }
