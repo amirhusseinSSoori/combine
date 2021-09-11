@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.*
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.concept_combine.ui.main.MainScree
+import com.example.concept_combine.ui.main.MainScreen
 import com.example.concept_combine.ui.main.MainViewModel
 import com.example.concept_combine.ui.theme.Concept_CombineTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
             Concept_CombineTheme {
                 Surface(color = MaterialTheme.colors.background) {
                     val viewModel: MainViewModel = viewModel()
-                    MainScree(viewModel)
+                    MainScreen(viewModel)
                 }
             }
         }

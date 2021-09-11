@@ -16,16 +16,16 @@ class MainViewModel @Inject constructor(var repository: Repository) : ViewModel(
     private val carState = MutableStateFlow<List<Data>>(emptyList())
     private val modernState = MutableStateFlow<List<Data>>(emptyList())
     private val enableState = MutableStateFlow<VisibleMenu>(VisibleMenu.Disable)
-    private val state = MutableStateFlow(KindOfBy())
-    val _state = state.asStateFlow()
+    private val resultState = MutableStateFlow(CombineResult())
+    val _resultState = resultState.asStateFlow()
 
     init {
         event(AllEvent.GetAllData)
         viewModelScope.launch {
             combine(carState, modernState, enableState) { car, modern, enableState ->
-                KindOfBy(car, modern, enableState)
+                CombineResult(car, modern, enableState)
             }.collect {
-                state.value = it
+                resultState.value = it
             }
         }
 
@@ -53,7 +53,7 @@ class MainViewModel @Inject constructor(var repository: Repository) : ViewModel(
 
     }
     private fun onSubscriberCars() {
-        repository.generateList().onEach {
+        repository.showList().onEach {
             carState.value = it
         }.launchIn(viewModelScope)
     }
@@ -74,7 +74,7 @@ class MainViewModel @Inject constructor(var repository: Repository) : ViewModel(
     }
 }
 
-data class KindOfBy(
+data class CombineResult(
     var car: List<Data> = listOf(),
     var modern: List<Data> = listOf(),
     var enableMenu: VisibleMenu = VisibleMenu.Disable

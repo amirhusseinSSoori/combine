@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 class Repository @Inject constructor(var api:FakeData) {
 
-    fun generateList(): Flow<List<Data>> = flow {
+    fun showList(): Flow<List<Data>> = flow {
         emit(api.list)
     }
 

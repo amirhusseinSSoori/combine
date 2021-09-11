@@ -35,8 +35,8 @@ import com.example.concept_combine.util.utilFont
 
 
 @Composable
-fun MainScree(viewModel: MainViewModel) {
-    viewModel._state.collectAsState().let { details ->
+fun MainScreen(viewModel: MainViewModel) {
+    viewModel._resultState.collectAsState().let { details ->
         Menu(
             enableMenu = details.value.enableMenu is VisibleMenu.Enable,
             disableMenu = { viewModel.event(AllEvent.EnableMenu(VisibleMenu.Disable)) },
